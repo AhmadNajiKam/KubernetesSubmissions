@@ -1,16 +1,5 @@
 # Web server
 Simple web server that prints `Server started in port NNNN`.
 
-### 1. Build and push
-
-```bash
-docker build -t YOUR_USERNAME/image_name .
-docker push YOUR_USERNAME/image_name
-```
-```
-kubectl create deployment <deployment_name> --image=YOUR_USERNAME/image_name --port=3000
-kubectl set env deployment/<deployment_name> PORT=<port>
-```
-```
-```
-```
+`kubectl apply -f ./manifests/deployment.yaml`
+`kubectl apply -f https://raw.githubusercontent.com/AhmadNajiKam/KubernetesSubmissions/refs/tags/1.4/web_server/manifests/deployment.yaml`
