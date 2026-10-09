@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: logoutput
-          image: hexa4d/log_output:1.3
+          image: hexa4d/log_output:1.7
