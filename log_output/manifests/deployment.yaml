@@ -12,6 +12,17 @@ spec:
       labels:
         app: logoutput
     spec:
+      volumes:
+        - name: shared-log-file
+          emptyDir: {}
       containers:
-        - name: logoutput
-          image: hexa4d/log_output:1.7
+        - name: logoutput-server
+          image: hexa4d/log_output:1.10s
+          volumeMounts:
+            - name: shared-log-file
+              mountPath: /app/shared
+        - name: logoutput-generator
+          image: hexa4d/log_output:1.10g
+          volumeMounts:
+            - name: shared-log-file
+              mountPath: /app/shared
