@@ -10,7 +10,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: pingpong-svc
+                name: ping-pong-svc
                 port:
                   number: 2345
           - path: /

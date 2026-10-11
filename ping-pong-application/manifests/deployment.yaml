@@ -12,14 +12,7 @@ spec:
       labels:
         app: pingpong
     spec:
-      volumes:
-        - name: shared-log-file
-          persistentVolumeClaim:
-            claimName: test-pv-claim
       containers:
         - name: pingpong
-          image: hexa4d/ping-pong:1.11
+          image: hexa4d/ping-pong:2.1
           imagePullPolicy: Always
-          volumeMounts:
-            - name: shared-log-file
-              mountPath: /app/shared

@@ -1,27 +1,21 @@
 from fastapi import FastAPI
-import os
+from fastapi.responses import PlainTextResponse
 
-app: FastAPI = FastAPI()
-FILE_PATH: str = "/app/shared/counter.txt"
+app = FastAPI()
+app.state.counter = 0
 
-os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
-
-# Restore counter after restart
-if os.path.exists(FILE_PATH):
-    with open(FILE_PATH, "r") as f:
-        app.state.counter = int(f.read().strip())
-else:
-    app.state.counter = 0
 
 @app.get("/pingpong")
 async def pong():
     response = f"Pong {app.state.counter}"
     app.state.counter += 1
+    return PlainTextResponse(response)
 
-    with open(FILE_PATH, "w") as f:
-        f.write(str(app.state.counter))
 
-    return response
+@app.get("/pings")
+async def get_pings():
+    return PlainTextResponse(str(app.state.counter))
+
 
 if __name__ == "__main__":
     import uvicorn

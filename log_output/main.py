@@ -1,26 +1,29 @@
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 import os
-
-COUNTER_PATH = "/app/shared/counter.txt"
+import requests
 
 app = FastAPI()
+
+PING_PONG_URL = os.getenv(
+    "PING_PONG_URL",
+    "http://ping-pong-svc:2345/pings"
+)
+
+
+def get_counter():
+    response = requests.get(PING_PONG_URL, timeout=3)
+    response.raise_for_status()
+    return response.text.strip()
+
 
 @app.get("/")
 @app.get("/status")
 def get_status():
-    if not os.path.exists(COUNTER_PATH):
-        return PlainTextResponse("Ping / Pongs: 0")
-
-    with open(COUNTER_PATH, "r") as f:
-        counter = f.read().strip()
-
+    counter = get_counter()
     return PlainTextResponse(f"Ping / Pongs: {counter}")
+
 
 @app.get("/raw")
 def get_raw():
-    if not os.path.exists(COUNTER_PATH):
-        return "File empty"
-
-    with open(COUNTER_PATH, "r") as f:
-        return f.read()
+    return PlainTextResponse(get_counter())
