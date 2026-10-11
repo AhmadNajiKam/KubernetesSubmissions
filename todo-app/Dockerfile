@@ -3,17 +3,12 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py .
-COPY templates/ ./templates/
-COPY static/ ./static/
 
-RUN mkdir -p /data
-
-ENV IMAGE_CACHE_DIR=/data
-ENV IMAGE_CACHE_TTL_SECONDS=600
+ENV CACHE_DIR=/app/cache
+RUN mkdir -p /app/cache
 
 EXPOSE 3000
 

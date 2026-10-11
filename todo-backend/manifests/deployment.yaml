@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-backend
+  template:
+    metadata:
+      labels:
+        app: todo-backend
+    spec:
+      volumes:
+        - name: todo-backend-pv
+          persistentVolumeClaim:
+            claimName: todo-pvc
+      containers:
+        - name: todo-backend
+          image: hexa4d/todo-backend:2.2
+          volumeMounts:
+            - name: todo-backend-pv
+              mountPath: /app/cache
+          env:
+            - name: PORT
+              value: "3001"
+
