@@ -14,15 +14,12 @@ spec:
     spec:
       volumes:
         - name: shared-log-file
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: test-pv-claim
       containers:
-        - name: logoutput-server
-          image: hexa4d/log_output:1.10s
-          volumeMounts:
-            - name: shared-log-file
-              mountPath: /app/shared
-        - name: logoutput-generator
-          image: hexa4d/log_output:1.10g
+        - name: logoutput
+          image: hexa4d/log_output:1.11
+          imagePullPolicy: Always
           volumeMounts:
             - name: shared-log-file
               mountPath: /app/shared
