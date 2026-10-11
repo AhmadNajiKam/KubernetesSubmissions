@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: webserver
-          image: hexa4d/web_server:1.5
+          image: hexa4d/web_server:1.12
           env:
             - name: PORT
               value: "3000"

@@ -1,8 +1,20 @@
 FROM python:3.12-slim
+
 WORKDIR /app
-COPY requirements.txt ./
+
+COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
-COPY main.py ./
-ENV PORT=3000
+
+COPY main.py .
+COPY templates/ ./templates/
+COPY static/ ./static/
+
+RUN mkdir -p /data
+
+ENV IMAGE_CACHE_DIR=/data
+ENV IMAGE_CACHE_TTL_SECONDS=600
+
 EXPOSE 3000
-CMD ["sh", "-c", "echo Server started in port ${PORT} && uvicorn main:app --host 0.0.0.0 --port ${PORT}"]
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]
