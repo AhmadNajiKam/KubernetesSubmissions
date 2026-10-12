@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-app-configmap
+  namespace: project
+data:
+  PORT: "3000"
+  MAX_TODO_LENGTH: "140"
+  BACKEND_URL: "http://todo-backend-svc:2345"
+  IMAGE_SOURCE_URL: "https://picsum.photos/1200"
+  CACHE_DIR: "/app/cache"
+  CACHE_FILENAME: "image.jpg"
+  CACHE_SECONDS: "600"
+  IMAGE_REQUEST_TIMEOUT: "20"
+  BACKEND_REQUEST_TIMEOUT: "5"
+  IMAGE_MEDIA_TYPE: "image/jpeg"

@@ -10,16 +10,23 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
 app = FastAPI()
 
-BACKEND_URL = os.getenv(
-    "BACKEND_URL",
-    "http://todo-backend-svc:2345",
-).rstrip("/")
+# Configuration from environment variables
+BACKEND_URL = os.environ["BACKEND_URL"].rstrip("/")
+IMAGE_SOURCE_URL = os.environ["IMAGE_SOURCE_URL"]
 
-CACHE_DIR = Path(os.getenv("CACHE_DIR", "./cache"))
+CACHE_DIR = Path(os.environ["CACHE_DIR"])
+CACHE_FILENAME = os.environ["CACHE_FILENAME"]
+CACHE_SECONDS = int(os.environ["CACHE_SECONDS"])
+
+IMAGE_REQUEST_TIMEOUT = float(os.environ["IMAGE_REQUEST_TIMEOUT"])
+BACKEND_REQUEST_TIMEOUT = float(os.environ["BACKEND_REQUEST_TIMEOUT"])
+
+MAX_TODO_LENGTH = int(os.environ["MAX_TODO_LENGTH"])
+IMAGE_MEDIA_TYPE = os.environ["IMAGE_MEDIA_TYPE"]
+
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-IMAGE_PATH = CACHE_DIR / "image.jpg"
-CACHE_SECONDS = 600
+IMAGE_PATH = CACHE_DIR / CACHE_FILENAME
 image_lock = Lock()
 
 
@@ -34,13 +41,15 @@ def get_image():
         if expired:
             try:
                 response = requests.get(
-                    "https://picsum.photos/1200",
-                    timeout=20,
+                    IMAGE_SOURCE_URL,
+                    timeout=IMAGE_REQUEST_TIMEOUT,
                 )
                 response.raise_for_status()
 
-                # Replace the old image only after a successful download.
-                temporary_path = CACHE_DIR / "image.tmp"
+                temporary_path = IMAGE_PATH.with_name(
+                    IMAGE_PATH.name + ".tmp"
+                )
+
                 temporary_path.write_bytes(response.content)
                 temporary_path.replace(IMAGE_PATH)
 
@@ -55,7 +64,7 @@ def get_image():
 
     return Response(
         content=image,
-        media_type="image/jpeg",
+        media_type=IMAGE_MEDIA_TYPE,
         headers={"Cache-Control": "no-store"},
     )
 
@@ -65,7 +74,7 @@ def index():
     try:
         response = requests.get(
             f"{BACKEND_URL}/todos",
-            timeout=5,
+            timeout=BACKEND_REQUEST_TIMEOUT,
         )
         response.raise_for_status()
         todos = response.json()
@@ -136,7 +145,7 @@ def index():
                 type="text"
                 name="text"
                 placeholder="Write a todo"
-                maxlength="140"
+                maxlength="{MAX_TODO_LENGTH}"
                 required
             >
             <button type="submit">Send</button>
@@ -154,17 +163,17 @@ def index():
 def submit_todo(text: str = Form(...)):
     text = text.strip()
 
-    if not text or len(text) > 140:
+    if not text or len(text) > MAX_TODO_LENGTH:
         raise HTTPException(
             status_code=422,
-            detail="Todo must contain between 1 and 140 characters",
+            detail=f"Todo must contain between 1 and {MAX_TODO_LENGTH} characters",
         )
 
     try:
         response = requests.post(
             f"{BACKEND_URL}/todos",
             json={"text": text},
-            timeout=5,
+            timeout=BACKEND_REQUEST_TIMEOUT,
         )
         response.raise_for_status()
 
@@ -175,3 +184,4 @@ def submit_todo(text: str = Form(...)):
         )
 
     return RedirectResponse(url="/", status_code=303)
+

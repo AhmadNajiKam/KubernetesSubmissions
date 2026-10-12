@@ -19,13 +19,12 @@ spec:
             claimName: todo-pvc
       containers:
         - name: todo-app
-          image: hexa4d/todo-app:2.2
+          image: hexa4d/todo-app:2.6
           ports:
             - containerPort: 3000
           volumeMounts:
             - name: todo-app-pv
               mountPath: /app/cache
-          env:
-            - name: PORT
-              value: "3000"
-
+          envFrom:
+            - configMapRef:
+                name: todo-app-configmap
