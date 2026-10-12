@@ -15,5 +15,22 @@ spec:
     spec:
       containers:
         - name: logoutput
-          image: hexa4d/log_output:2.1
+          image: hexa4d/log_output:2.5
           imagePullPolicy: Always
+          env:
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name:  log-configmap
+                  key: message
+          volumeMounts:
+            - name: config
+              mountPath: /app/shared
+              readOnly: True
+      volumes:
+        - name: config
+          configMap:
+            name: log-configmap
+            items:
+              - key: "information.txt"
+                path: "information.txt"
