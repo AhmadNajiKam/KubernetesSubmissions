@@ -19,10 +19,12 @@ spec:
             claimName: todo-pvc
       containers:
         - name: todo-backend
-          image: hexa4d/todo-backend:2.6
+          image: hexa4d/todo-backend:2.8
           volumeMounts:
             - name: todo-backend-pv
               mountPath: /app/cache
           envFrom:
             - configMapRef:
                 name: todo-backend-configmap
+            - secretRef:
+                name: database-credentials

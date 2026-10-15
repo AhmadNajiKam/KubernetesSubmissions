@@ -5,4 +5,4 @@ To deploy this service make sure you do the following (Don't do again for todo-a
 
 `docker exec k3d-test-agent-0 mkdir -p /tmp/image`
 
-`kubectl apply -f ./manifests`
+`mv secret.example.yaml secret.yaml && kubectl apply -f ./manifests`

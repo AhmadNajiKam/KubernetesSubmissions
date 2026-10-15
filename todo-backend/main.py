@@ -1,16 +1,28 @@
 import os
-from threading import Lock
+import psycopg
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-app = FastAPI()
-
 # Configuration from environment variables
 MAX_TODO_LENGTH = int(os.environ["MAX_TODO_LENGTH"])
+DATABASE_URL = os.environ["DATABASE_URL"]
 
-todos = []
-lock = Lock()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    with psycopg.connect(DATABASE_URL) as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS todos (
+                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                text TEXT NOT NULL
+            )
+        """)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 class TodoCreate(BaseModel):
@@ -22,8 +34,14 @@ class TodoCreate(BaseModel):
 
 @app.get("/todos")
 def get_todos():
-    with lock:
-        return list(todos)
+    with psycopg.connect(DATABASE_URL) as conn:
+        result = conn.execute("""
+            SELECT id, text FROM todos ORDER BY id
+        """)
+        return [
+            {"id": row[0], "text": row[1]}
+            for row in result.fetchall()
+        ]
 
 
 @app.post("/todos", status_code=201)
@@ -36,11 +54,18 @@ def create_todo(todo: TodoCreate):
             detail="Todo cannot be empty",
         )
 
-    with lock:
-        new_todo = {
-            "id": len(todos) + 1,
-            "text": text,
-        }
-        todos.append(new_todo)
+    with psycopg.connect(DATABASE_URL) as conn:
+        result = conn.execute(
+            """
+            INSERT INTO todos (text)
+            VALUES (%s)
+            RETURNING id, text
+            """,
+            (text,),
+        )
+        row = result.fetchone()
 
-    return new_todo
+    return {
+        "id": row[0],
+        "text": row[1],
+    }

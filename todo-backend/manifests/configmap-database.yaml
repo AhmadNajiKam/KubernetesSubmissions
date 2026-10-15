@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-configmap
+  namespace: project
+data:
+  POSTGRES_USER: "postgres"
+  POSTGRES_DB: "postgres"
