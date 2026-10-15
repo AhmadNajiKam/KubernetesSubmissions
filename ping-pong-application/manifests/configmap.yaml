@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-configmap
+  namespace: exercises
+data:
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "mypassword"
+  POSTGRES_DB: "postgres"
+  DATABASE_URL: "postgresql://postgres:mypassword@database-svc:5432/postgres"

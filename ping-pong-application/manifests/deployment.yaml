@@ -15,5 +15,8 @@ spec:
     spec:
       containers:
         - name: pingpong
-          image: hexa4d/ping-pong:2.1
+          image: hexa4d/ping-pong:2.7
           imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: database-configmap
